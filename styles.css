@@ -1,0 +1,25 @@
+.advertising-add .form-control {
+    margin-bottom: 10px;
+}
+
+.advertising-add .price label,
+.advertising-add .mileage label,
+.advertising-add .description label {
+    margin-bottom: 4px;
+}
+
+.advertising-add .fileinput-button {
+    margin-bottom: 10px;
+}
+
+.advertising-add .files .filename {
+    overflow: hidden;
+}
+
+.advertising-add .files .info {
+    margin-bottom: 2px;
+}
+
+.advertising-add .files .thumbnail {
+    text-align: center;
+}
