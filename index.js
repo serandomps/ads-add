@@ -55,14 +55,14 @@ var select = function (el, val) {
     return val ? el.val(val) : el;
 };
 
-dust.loadSource(dust.compile(require('./preview'), 'advertising-add-preview'));
-dust.loadSource(dust.compile(require('./template'), 'advertising-add'));
+dust.loadSource(dust.compile(require('./preview'), 'advertisements-add-preview'));
+dust.loadSource(dust.compile(require('./template'), 'advertisements-add'));
 
 var render = function (sandbox, fn, data) {
     var update = data._.update;
     var id = data.id;
     var existing = data.photos || [];
-    dust.render('advertising-add', autils.cdn288x162(data), function (err, out) {
+    dust.render('advertisements-add', autils.cdn288x162(data), function (err, out) {
         if (err) {
             return;
         }
@@ -87,7 +87,7 @@ var render = function (sandbox, fn, data) {
             data.context = $('<div class="col-md-3 file"></div>');
             $.each(data.files, function (index, file) {
                 var length = pending.push(file);
-                dust.render('advertising-add-preview', {
+                dust.render('advertisements-add-preview', {
                     name: file.name,
                     index: length - 1
                 }, function (err, out) {
@@ -187,7 +187,7 @@ var render = function (sandbox, fn, data) {
             el.closest('.file').remove();
         });
         fn(false, function () {
-            $('.advertising-add', sandbox).remove();
+            $('.advertisements-add', sandbox).remove();
         });
     });
 };

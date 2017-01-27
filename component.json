@@ -1,6 +1,6 @@
 {
-    "name": "advertising-add",
-    "description": "advertising-add component",
+    "name": "advertisements-add",
+    "description": "advertisements-add component",
     "local": [],
     "scripts": ["index.js"],
     "styles": ["styles.css"],
@@ -14,6 +14,6 @@
         "serandomps/serand": "master",
         "serandomps/utils": "master",
         "serandomps/autos-utils": "master",
-        "serandomps/advertisement-service": "master"
+        "serandomps/advertisements-service": "master"
     }
 }
