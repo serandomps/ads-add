@@ -1,6 +1,6 @@
 {
-    "name": "advertisements-add",
-    "description": "advertisements-add component",
+    "name": "advertisements-create",
+    "description": "advertisements-create component",
     "local": [],
     "scripts": ["index.js"],
     "styles": ["styles.css"],
