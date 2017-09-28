@@ -2,6 +2,9 @@ var dust = require('dust')();
 var serand = require('serand');
 var autils = require('autos-utils');
 var utils = require('utils');
+var Vehicle = require('vehicles-service');
+var Advertisement = require('advertisements-service');
+var list = require('advertisements-find');
 
 var ADVERTISING_API = utils.resolve('advertising://apis/v/advertisements');
 
@@ -55,136 +58,32 @@ var select = function (el, val) {
     return val ? el.val(val) : el;
 };
 
-dust.loadSource(dust.compile(require('./preview'), 'advertisements-create-preview'));
 dust.loadSource(dust.compile(require('./template'), 'advertisements-create'));
+dust.loadSource(dust.compile(require('./list'), 'advertisements-create-list'));
+dust.loadSource(dust.compile(require('./details'), 'advertisements-create-details'));
 
-var render = function (sandbox, fn, data) {
-    var update = data._.update;
-    var id = data.id;
-    var existing = data.photos || [];
-    dust.render('advertisements-create', autils.cdn288x162(data), function (err, out) {
+var renderList = function (sandbox, fn, options) {
+    dust.render('advertisements-create', {}, function (err, out) {
         if (err) {
             return;
         }
         var elem = sandbox.append(out);
-        var pending = [];
-        $('.fileupload', elem).fileupload({
-            url: ADVERTISING_API + (update ? '/' + data.id : ''),
-            type: update ? 'PUT' : 'POST',
-            dataType: 'json',
-            autoUpload: false,
-            acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-            maxFileSize: 5000000, // 5 MB
-            // Enable image resizing, except for Android and Opera,
-            // which actually support image resizing, but fail to
-            // send Blob objects via XHR requests:
-            disableImageResize: /Android(?!.*Chrome)|Opera/
-                .test(window.navigator.userAgent),
-            previewMaxWidth: 180,
-            previewMaxHeight: 120,
-            previewCrop: true
-        }).on('fileuploadadd', function (e, data) {
-            data.context = $('<div class="col-md-3 file"></div>');
-            $.each(data.files, function (index, file) {
-                var length = pending.push(file);
-                dust.render('advertisements-create-preview', {
-                    name: file.name,
-                    index: length - 1
-                }, function (err, out) {
-                    if (err) {
-                        return;
-                    }
-                    data.context.append(out);
-                    $('.files').append(data.context);
-                });
+        Vehicle.find({
+            query: options,
+            images: '288x162'
+        }, function (err, vehicles) {
+            if (err) {
+                return;
+            }
+            dust.render('advertisements-create-list', {
+                content: vehicles,
+                size: 3
+            }, function (err, out) {
+                if (err) {
+                    return;
+                }
+                $('.content', elem).html(out);
             });
-        }).on('fileuploadprocessalways', function (e, data) {
-            var index = data.index;
-            var file = data.files[index];
-            var node = $(data.context.children()[index]);
-            if (file.preview) {
-                $('.thumbnail', data.context).append(file.preview);
-            }
-            if (file.error) {
-                node
-                    .append('<br>')
-                    .append($('<span class="text-danger"/>').text(file.error));
-            }
-            /*if (index + 1 === data.files.length) {
-             data.context.find('button')
-             .text('Upload')
-             .prop('disabled', !!data.files.error);
-             }*/
-        }).on('fileuploadprogressall', function (e, data) {
-            /*var progress = parseInt(data.loaded / data.total * 100, 10);
-             $('#progress .progress-bar').css(
-             'width',
-             progress + '%'
-             );*/
-        }).on('fileuploaddone', function (e, data) {
-            /*$.each(data.result.files, function (index, file) {
-             if (file.url) {
-             var link = $('<a>')
-             .attr('target', '_blank')
-             .prop('href', file.url);
-             $(data.context.children()[index])
-             .wrap(link);
-             } else if (file.error) {
-             var error = $('<span class="text-danger"/>').text(file.error);
-             $(data.context.children()[index])
-             .append('<br>')
-             .append(error);
-             }
-             });*/
-        }).on('fileuploadfail', function (e, data) {
-            /*$.each(data.files, function (index) {
-             var error = $('<span class="text-danger"/>').text('File upload failed.');
-             $(data.context.children()[index])
-             .append('<br>')
-             .append(error);
-             });*/
-        }).prop('disabled', !$.support.fileInput)
-            .parent().addClass($.support.fileInput ? undefined : 'disabled');
-        $('.add', elem).click(function (e) {
-            e.stopPropagation();
-            var data = {
-                make: select($('.make', elem)).val(),
-                model: select($('.model', elem)).val(),
-                year: select($('.year', elem)).val(),
-                condition: $('.condition input[name=condition]:checked', elem).val(),
-                transmission: $('.transmission input[name=transmission]:checked', elem).val(),
-                fuel: $('.fuel input[name=fuel]:checked', elem).val(),
-                color: $('.color input', elem).val(),
-                mileage: $('.mileage input', elem).val(),
-                price: $('.price input', elem).val(),
-                description: $('.description textarea', elem).val()
-            };
-            if (update) {
-                console.log(existing);
-                data.id = id;
-                data.photos = existing;
-            }
-            var done = function (err) {
-                console.log('data updated/created successfully');
-            };
-            pending.length ? upload(data, pending, done, elem) : send(data, done, update);
-            return false;
-        });
-        $('.delete', elem).click(function (e) {
-            e.stopPropagation();
-            remove(id, function (err) {
-                console.log('data deleted successfully');
-            });
-            return false;
-        });
-        $(elem).on('click', '.remove-file', function () {
-            var el = $(this);
-            if (el.hasClass('pending')) {
-                pending.splice(el.data('index'), 1);
-            } else {
-                existing.splice(existing.indexOf(el.data('id')), 1);
-            }
-            el.closest('.file').remove();
         });
         fn(false, function () {
             $('.advertisements-create', sandbox).remove();
@@ -192,26 +91,54 @@ var render = function (sandbox, fn, data) {
     });
 };
 
+var renderDetails = function (id, sandbox, fn, options) {
+    dust.render('advertisements-create', {}, function (err, out) {
+        if (err) {
+            return;
+        }
+        var elem = sandbox.append(out);
+        Vehicle.findOne({id: id, images: '800x450'}, function (err, vehicle) {
+            if (err) {
+                return;
+            }
+            dust.render('advertisements-create-details', vehicle, function (err, out) {
+                if (err) {
+                    return;
+                }
+                $('.content', elem).html(out);
+                fn(false, {
+                    clean: function () {
+                        $('.advertisements-create', sandbox).remove();
+                    },
+                    done: function () {
+                        var i;
+                        var o = [];
+                        var photos = vehicle.photos;
+                        var length = photos.length;
+                        var photo;
+                        for (i = 0; i < length; i++) {
+                            photo = photos[i];
+                            console.log(photo.url)
+                            o.push({
+                                href: photo.url,
+                                thumbnail: 'https://farm6.static.flickr.com/5587/30453547284_436620c829_b.jpg'
+                            });
+                        }
+                        blueimp.Gallery(o, {
+                            container: $('.blueimp-gallery-carousel', sandbox),
+                            carousel: true,
+                            thumbnailIndicators: true,
+                            stretchImages: true
+                        });
+                    }
+                })
+            });
+        });
+    });
+};
+
 module.exports = function (sandbox, fn, options) {
     options = options || {};
     var id = options.id;
-    if (!id) {
-        render(sandbox, fn, {
-            _: {}
-        });
-        return;
-    }
-    $.ajax({
-        url: ADVERTISING_API + '/' + id,
-        dataType: 'json',
-        success: function (data) {
-            data._ = {
-                update: true
-            };
-            render(sandbox, fn, data);
-        },
-        error: function () {
-            render(sandbox, fn, {});
-        }
-    });
+    id ? renderDetails(id, sandbox, fn, options) : renderList(sandbox, fn, options);
 };

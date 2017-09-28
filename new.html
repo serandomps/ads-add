@@ -1,0 +1,41 @@
+<div class="advertisements-create-add panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">{?_.update}Edit{:else}Add{/_.update} Advertisement</h3>
+    </div>
+    <div class="panel-body">
+        <form role="form" class="advertisements-create">
+            {#.}
+            <div class="form-group title">
+                <label>Title</label>
+                <input type="text" class="form-control" placeholder="Title" value="{title}">
+            </div>
+            <div class="form-group photos">
+                <span class="btn btn-success fileinput-button upload-button">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    <span> Select Images...</span>
+                    <input type="file" multiple="" name="files[]" class="fileupload">
+                </span>
+
+                <!--<div id="progress" class="progress">
+                    <div class="progress-bar progress-bar-success"></div>
+                </div>-->
+                <div class="files row">
+                    {#_.update}
+                    {#photos}
+                    <div class="col-md-3 file">
+                        {>"advertisements-create-preview"/}
+                    </div>
+                    {/photos}
+                    {/_.update}
+                </div>
+            </div>
+            {/.}
+            <div class="form-group">
+                <button type="button" class="btn btn-default add">{?_.update}Save{:else}Add{/_.update}</button>
+                {?_.update}
+                <button type="button" class="btn btn-default delete">Delete</button>
+                {/_.update}
+            </div>
+        </form>
+    </div>
+</div>

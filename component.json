@@ -6,7 +6,8 @@
     "styles": ["styles.css"],
     "templates": [
         "template.html",
-        "preview.html"
+        "list.html",
+        "details.html"
     ],
     "main": "index.js",
     "dependencies": {
@@ -14,6 +15,8 @@
         "serandomps/serand": "master",
         "serandomps/utils": "master",
         "serandomps/autos-utils": "master",
-        "serandomps/advertisements-service": "master"
+        "serandomps/advertisements-service": "master",
+        "serandomps/advertisements-find": "master",
+        "serandomps/vehicles-service": "master"
     }
 }

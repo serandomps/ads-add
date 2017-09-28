@@ -1,0 +1,32 @@
+<h1>Choose from your content</h1>
+<div class="container-fluid">
+    {@slice context=content size="30"}
+    <div class="row">
+        {#.}
+        <div class="col-md-{size}">
+            <a class="thumbnail" href="/add?id={id}">
+                <div class="type">autos</div>
+                <div class="photo"><img src="{photos[0].url}"/></div>
+                <div class="info">
+                    <div class="row">
+                        <div class="col-md-12 first">
+                            <h4>{make.title} {model.title}
+                                <small>{year}</small>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 pull-left">
+                            <div class="third"><h6>{price} LKR</h6></div>
+                        </div>
+                        <div class="col-md-6 pull-left">
+                            <div class="third"><h6>{mileage} km</h6></div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {/.}
+    </div>
+    {/slice}
+</div>
