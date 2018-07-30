@@ -22,7 +22,7 @@ var upload = function (data, files, next, elem) {
     });
 };
 
-var send = function (data, done, update) {
+var send = function (data, update, done) {
     $.ajax({
         url: ADVERTISING_API + (update ? '/' + data.id : ''),
         type: update ? 'PUT' : 'POST',
@@ -32,10 +32,10 @@ var send = function (data, done, update) {
             data: JSON.stringify(data)
         },
         success: function (data) {
-            done();
+            done(null, data);
         },
         error: function (xhr, status, err) {
-            done(err);
+            done(err || status || xhr);
         }
     });
 };
@@ -45,10 +45,10 @@ var remove = function (id, done) {
         url: ADVERTISING_API + '/' + id,
         type: 'DELETE',
         success: function (data) {
-            done();
+            done(null, data);
         },
         error: function (xhr, status, err) {
-            done(err);
+            done(err || status || xhr);
         }
     });
 };
@@ -62,10 +62,10 @@ dust.loadSource(dust.compile(require('./template'), 'advertisements-create'));
 dust.loadSource(dust.compile(require('./list'), 'advertisements-create-list'));
 dust.loadSource(dust.compile(require('./details'), 'advertisements-create-details'));
 
-var renderList = function (sandbox, fn, options) {
+var renderList = function (sandbox, options, done) {
     dust.render('advertisements-create', {}, function (err, out) {
         if (err) {
-            return;
+            return done(err);
         }
         var elem = sandbox.append(out);
         Vehicle.find({
@@ -73,44 +73,44 @@ var renderList = function (sandbox, fn, options) {
             images: '288x162'
         }, function (err, vehicles) {
             if (err) {
-                return;
+                return done(err);
             }
             dust.render('advertisements-create-list', {
                 content: vehicles,
                 size: 3
             }, function (err, out) {
                 if (err) {
-                    return;
+                    return done(err);
                 }
                 $('.content', elem).html(out);
             });
         });
-        fn(false, function () {
+        done(null, function () {
             $('.advertisements-create', sandbox).remove();
         });
     });
 };
 
-var renderDetails = function (id, sandbox, fn, options) {
+var renderDetails = function (id, sandbox, options, done) {
     dust.render('advertisements-create', {}, function (err, out) {
         if (err) {
-            return;
+            return done(err);
         }
         var elem = sandbox.append(out);
         Vehicle.findOne({id: id, images: '800x450'}, function (err, vehicle) {
             if (err) {
-                return;
+                return done(err);
             }
             dust.render('advertisements-create-details', vehicle, function (err, out) {
                 if (err) {
-                    return;
+                    return done(err);
                 }
                 $('.content', elem).html(out);
-                fn(false, {
+                done(null, {
                     clean: function () {
                         $('.advertisements-create', sandbox).remove();
                     },
-                    done: function () {
+                    ready: function () {
                         var i;
                         var o = [];
                         var photos = vehicle.photos;
@@ -137,8 +137,8 @@ var renderDetails = function (id, sandbox, fn, options) {
     });
 };
 
-module.exports = function (sandbox, fn, options) {
+module.exports = function (sandbox, options, done) {
     options = options || {};
     var id = options.id;
-    id ? renderDetails(id, sandbox, fn, options) : renderList(sandbox, fn, options);
+    id ? renderDetails(id, sandbox, options, done) : renderList(sandbox, options, done);
 };
