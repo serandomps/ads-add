@@ -6,7 +6,7 @@ var Vehicle = require('vehicles-service');
 var Advertisement = require('advertisements-service');
 var list = require('advertisements-find');
 
-var ADVERTISING_API = utils.resolve('advertising://apis/v/advertisements');
+var ADVERTISING_API = utils.resolve('advertising:///apis/v/advertisements');
 
 var upload = function (data, files, next, elem) {
     $('.fileupload', elem).fileupload('send', {
