@@ -62,7 +62,7 @@ dust.loadSource(dust.compile(require('./template'), 'advertisements-create'));
 dust.loadSource(dust.compile(require('./list'), 'advertisements-create-list'));
 dust.loadSource(dust.compile(require('./details'), 'advertisements-create-details'));
 
-var renderList = function (sandbox, options, done) {
+var renderList = function (ctx, sandbox, options, done) {
     dust.render('advertisements-create', {}, function (err, out) {
         if (err) {
             return done(err);
@@ -137,7 +137,7 @@ var renderDetails = function (id, sandbox, options, done) {
     });
 };
 
-module.exports = function (sandbox, options, done) {
+module.exports = function (ctx, sandbox, options, done) {
     options = options || {};
     var id = options.id;
     id ? renderDetails(id, sandbox, options, done) : renderList(sandbox, options, done);
