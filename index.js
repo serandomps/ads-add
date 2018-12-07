@@ -137,7 +137,8 @@ var renderDetails = function (id, sandbox, options, done) {
     });
 };
 
-module.exports = function (ctx, sandbox, options, done) {
+module.exports = function (ctx, container, options, done) {
+    var sandbox = container.sandbox;
     options = options || {};
     var id = options.id;
     id ? renderDetails(id, sandbox, options, done) : renderList(sandbox, options, done);
