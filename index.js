@@ -70,7 +70,7 @@ var renderList = function (ctx, sandbox, options, done) {
         var elem = sandbox.append(out);
         Vehicle.find({
             query: options,
-            images: '288x162'
+            resolution: '288x162'
         }, function (err, vehicles) {
             if (err) {
                 return done(err);
@@ -97,7 +97,7 @@ var renderDetails = function (id, sandbox, options, done) {
             return done(err);
         }
         var elem = sandbox.append(out);
-        Vehicle.findOne({id: id, images: '800x450'}, function (err, vehicle) {
+        Vehicle.findOne({id: id, resolution: '800x450'}, function (err, vehicle) {
             if (err) {
                 return done(err);
             }
